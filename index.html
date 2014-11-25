@@ -9,6 +9,65 @@
 
         <script>
             
+        var myObject = {
+            create: function(prototypeList) {
+                var obj = Object.create(myObject);
+                obj.prototypeList = prototypeList;
+                return obj;
+            },
+            call: function(funcName, parameters) {
+                var func = undefined;
+
+                // If function exists in instance
+                if (typeof this[funcName] == 'function') {
+                    var stringParams = '';
+
+                    if(parameters === undefined || parameters === null) {
+                        // No parameters
+                    }
+                    else if(parameters.constructor === Array) {
+                        // Several parameters
+                        for(var i=0; i<parameters.length; i++) {
+                            stringParams += parameters[i] + (i === parameters.length - 1 ? '' : ', ');
+                        }
+                    }
+                    else {
+                        // Only one parameter
+                        stringParams += parameters;
+                    }
+                    var stringFunction = 'this[funcName](' + stringParams + ')';
+                    func = eval(stringFunction);
+                }
+                // Search for function in parents
+                else {
+                    if(this.prototypeList === undefined || this.prototypeList === null) {
+                        // No parent
+                    }
+                    else if(this.prototypeList.constructor === Array) {
+                        // List of parents
+                        for(var i=0; i<this.prototypeList.length; i++) {
+                            func = this.prototypeList[i].call(funcName, parameters);
+                        }
+                    }
+                    else {
+                        // Only one parent
+                        func = this.prototypeList.call(funcName, parameters);
+                    }
+                } 
+
+                return func;
+            }
+        }
+
+        var obj0 = myObject.create(null);
+        obj0.func = function(arg) { return "func0: " + arg; };
+        var obj1 = myObject.create([obj0]);
+        var obj2 = myObject.create([]);
+        obj2.func = function(arg) { return "func2: " + arg; };
+        var obj3 = myObject.create([obj1, obj2]);
+        var result = obj3.call("func", ["'hello'"]);
+        console.log(result);
+
         </script>        
     </body>
 </html>
