@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+		<title>Assignment1 - Etienne Cuvillon & Loric Brevet</title>
     </head>
 
     <body>
@@ -43,15 +44,13 @@
                     if(this.prototypeList === undefined || this.prototypeList === null) {
                         // No parent
                     }
-                    else if(this.prototypeList.constructor === Array) {
-                        // List of parents
-                        for(var i=0; i<this.prototypeList.length; i++) {
-                            func = this.prototypeList[i].call(funcName, parameters);
-                        }
-                    }
                     else {
-                        // Only one parent
-                        func = this.prototypeList.call(funcName, parameters);
+                        // List of one or more parents
+						var i=0;
+                        while((func === undefined || func === null) && (i<this.prototypeList.length)) {
+                            func = this.prototypeList[i].call(funcName, parameters);
+							i++;
+                        }
                     }
                 } 
 
