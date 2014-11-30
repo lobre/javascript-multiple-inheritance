@@ -6,10 +6,14 @@
     </head>
 
     <body>
-        <h1>Assignment 1: Multiple Inheritance in Javascript</h1>
+		<div>
+			<h1>Assignment1: Multiple Inheritance in Javascript</h1>
+			<p>Etienne Cuvillon & Loric Brevet</p>
+			<p>Grade A-B</p>
+		</div>
 
         <script>
-            
+        //Prototype-Based Multiple Inheritance  
         var myObject = {
             create: function(prototypeList) {
                 var obj = Object.create(myObject);
@@ -23,7 +27,7 @@
                 }
                 // Search for function in parents
                 if(this.prototypeList == null) { // No parent
-					return null;
+					return undefined;
                 }
                 // List of one or more parents
 				var func, i=0;
@@ -33,6 +37,7 @@
                 return func;
             }
         }
+		
         var obj0 = myObject.create(null);
         obj0.func = function(arg) { return "func0: " + arg; };
         var obj1 = myObject.create([obj0]);
@@ -40,8 +45,11 @@
         obj2.func = function(arg) { return "func2: " + arg; };
         var obj3 = myObject.create([obj1, obj2]);
         var result = obj3.call("func", ["hello"]);
-        console.log(result);
+        console.log("Prototype-Based Multiple Inheritance:");
+		console.log(result);
 
+		//Class-Based Multiple Inheritance
+		
         </script>        
     </body>
 </html>
