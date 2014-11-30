@@ -13,14 +13,21 @@
 		</div>
 
         <script>
-        //Prototype-Based Multiple Inheritance  
+        //Prototype-Based Multiple Inheritance 
+        console.log("1. Prototype-Based Multiple Inheritance:");
+		
         var myObject = {
             create: function(prototypeList) {
-                var obj = Object.create(myObject);
+                var obj = Object.create(this);
                 obj.prototypeList = prototypeList;
+				obj.infiniteLoop = false; // To prevent circular inheritance
                 return obj;
             },
             call: function(funcName, parameters) {
+				// Check for infinite loop
+				if (this.infiniteLoop) { // We already went through this object
+					return "Warning: infinite loop";
+				}
                 // If function exists in instance
                 if (typeof this[funcName] == 'function') {
                     return this[funcName](parameters);
@@ -31,9 +38,11 @@
                 }
                 // List of one or more parents
 				var func, i=0;
+				this.infiniteLoop = true; // Indicate we already have been in this object
                 while((func == null) && (i < this.prototypeList.length)) {
                     func = this.prototypeList[i++].call(funcName, parameters);
                 }
+				this.infiniteLoop = false; // Reset the indicator of infinite loop
                 return func;
             }
         }
@@ -45,11 +54,23 @@
         obj2.func = function(arg) { return "func2: " + arg; };
         var obj3 = myObject.create([obj1, obj2]);
         var result = obj3.call("func", ["hello"]);
-        console.log("Prototype-Based Multiple Inheritance:");
 		console.log(result);
 
 		//Class-Based Multiple Inheritance
+        console.log("2. Class-Based Multiple Inheritance:");
 		
+		// Circular Inheritance
+		console.log("3. Circular Inheritance Prevention:");
+		//Prototype
+		console.log("3.1 For prototypes");
+		var obj1 = myObject.create(null);
+		var obj2 = myObject.create([obj1]);
+		obj1.prototypeList = [obj2]; // We set the circular inheritance
+		var result = obj1.call("func", ["hello"]); // We should obtain a warning for infinite loop
+		console.log(result);
+		
+		//Class
+		console.log("3.2 For classes");
         </script>        
     </body>
 </html>
