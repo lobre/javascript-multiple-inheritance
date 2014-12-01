@@ -20,7 +20,6 @@
             create: function(prototypeList) {
                 var obj = Object.create(this);
                 obj.prototypeList = prototypeList;
-				obj.infiniteLoop = false; // To prevent circular inheritance
                 return obj;
             },
             call: function(funcName, parameters) {
@@ -59,6 +58,64 @@
 		//Class-Based Multiple Inheritance
         console.log("2. Class-Based Multiple Inheritance:");
 		
+		function createClass(className, superClassList) {
+			var obj = Object.create(superClassList);
+			obj.className = className;
+			obj.superClassList = superClassList;
+			
+			obj.new = function() {
+				var instance = Object.create(obj);
+				
+				instance.call = function(funcName, parameters) {
+					// Function to explore the classToExplore class
+					function exploreClasses(classToExplore) {
+						// Check for infinite loop
+						if (classToExplore.infiniteLoop) { // We already went through this class
+							return "Warning: infinite loop";
+						}
+						// If classToExplore contains the function we want
+						if (typeof classToExplore[funcName] == 'function') {
+							return classToExplore[funcName](parameters);
+						}
+						// If classToExplore has no super class
+						if (classToExplore.superClassList == null) {
+							return undefined;
+						}
+						// List of one or more super classes
+						var func, i=0;
+						classToExplore.infiniteLoop = true; // Indicate we already have been in this class
+						// Explore the super classes from beginning-to-end
+						while((func == null) && (i < classToExplore.superClassList.length)) {
+							// Explore one more level of depth
+							func = exploreClasses(classToExplore.superClassList[i++]);
+						}
+						classToExplore.infiniteLoop = false; // Reset the indicator of infinite loop
+						return func;
+					}
+					// If function exists in instance
+					if (typeof this[funcName] == 'function') {
+						return this[funcName](parameters);
+					}
+					// Search for function in class and super classes
+					return exploreClasses(obj);
+				}
+				
+				return instance;
+			}
+			
+			return obj;
+		}
+		
+		var class0 = createClass("Class0", null);
+		class0.func = function(arg) { return "func0: " + arg; };
+		var class1 = createClass("Class1", [class0]);
+		var class2 = createClass("Class2", []);
+		class2.func = function(arg) { return "func2: " + arg; };
+		var class3 = createClass("Class3", [class1, class2]);
+		var obj3 = class3.new();
+		var result = obj3.call("func", ["hello"]);
+		console.log(result);
+		
 		// Circular Inheritance
 		console.log("3. Circular Inheritance Prevention:");
 		//Prototype
@@ -71,6 +128,13 @@
 		
 		//Class
 		console.log("3.2 For classes");
+		var class0 = createClass("Class0", null);
+		var class1 = createClass("Class1", [class0]);
+		class0.superClassList = [class1]; // We set the circular inheritance
+		var obj1 = class1.new();
+		var result = obj1.call("func", ["hello"]); // We should obtain a warning for infinite loop
+		console.log(result);
+		
         </script>        
     </body>
 </html>
